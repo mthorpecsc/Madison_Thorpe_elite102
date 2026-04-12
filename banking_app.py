@@ -29,12 +29,14 @@ def view_accounts():
     print("A list of all registered accounts.")
     print("-"*30)
     print("∥ID∥ ∥First Name∥ ∥Last Name∥ ∥Checkings Balance∥ ∥Savings Balance∥")
+
     cursor.execute('SELECT * FROM Customer_Accounts')
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(row) 
+
     print("1. Main Menu \n2. Withdraw from Account \n3. Add to account")
-    while True:
+    while True: #loops if invalid answers are given 
         user_choice = input("What would like to do next?: ").strip() 
         if user_choice == "1":
             print("Redirecting you shortly...")
@@ -56,6 +58,7 @@ def update_accounts():
     print()
     
 def create_account():
+    print()
     print("Welcome to Account Creation.")
 
     while True: #makes sure that names aren't created with numbers or special characters 
