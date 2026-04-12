@@ -71,17 +71,24 @@ def create_account():
     conn.commit()
 
     print("What would you like to do next? \n1. Create another Account \n2. Go back to Main Menu")
-    answer = int(input(": "))
-    match answer:
-        case 1:
+    
+    #sends users back to account creation or the main menu 
+    while True:
+        answer = input(": ")
+        if answer == "1":
             print("Redirecting you shortly...")
             time.sleep(2)
             create_account()
-        case 2:
+            break
+        elif answer == "2":
             print("Redirecting you to main menu...")
             time.sleep(2)
             main() 
-           
+            break
+        else:
+            print()
+            print(f"{answer} is not an option on the list")
+                    
 def withdraw_account():
     print()
     
