@@ -18,14 +18,40 @@ CREATE TABLE IF NOT EXISTS Customer_Accounts (
 ''')
 
 def main():
+    print() 
     print("Welcome to the Main Menu.")
     print('-'*25)
     print("1. View Accounts \n2. Update Account \n3. Create New Account \n4. Add to Account \n5. Withdraw from Account \n6. Delete Account \n7. Exit Program ")
     print('-'*25)
 
 def view_accounts():
+    print() 
+    print("A list of all registered accounts.")
+    print("-"*30)
+    print("∥ID∥ ∥First Name∥ ∥Last Name∥ ∥Checkings Balance∥ ∥Savings Balance∥")
     cursor.execute('SELECT * FROM Customer_Accounts')
-
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+    print("1. Main Menu \n2. Withdraw from Account \n3. Add to account")
+    while True:
+        user_choice = input("What would like to do next?: ").strip() 
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_account()
+        elif user_choice == "3":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_account()
+        else:
+            print(f"{user_choice} is not an option on the list.")
+            print()
+            
 def update_accounts():
     print()
     
@@ -98,4 +124,5 @@ def add_account():
 def delete_account():
     print()
 
-create_account()
+#create_account()
+view_accounts()
