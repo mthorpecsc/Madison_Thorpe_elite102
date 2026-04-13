@@ -56,7 +56,74 @@ def view_accounts():
             
 def update_accounts():
     print()
-    
+    print("Update Accounts Page")
+
+    while True:
+        user_choice = input("What would you like to update? \n1. First Name \n2. Last Name \n: ").strip()
+        if user_choice == "1":
+            while True:
+                first_name = input("What would you like to update the first name to?: ").translate(no_punct)
+                if first_name.isalpha() == True:
+                    break
+                else:
+                    print("Name cannot include special characters or numbers.")
+                    print()           
+            while True:
+                try: 
+                    id = int(input("Provide the account id: "))
+                    cursor.execute(f"UPDATE Customer_Accounts SET first_name = '{first_name}' WHERE id = {id}") 
+                    conn.commit()
+                    print()
+                    break
+                except ValueError:
+                    print("Invalid id given.")
+               
+        elif user_choice == "2":
+            while True:
+                last_name = input("What would you like to update the last name to?: ").translate(no_punct)
+                if last_name.isalpha() == True:
+                    break
+                else:
+                    print("Name cannot include special characters or numbers.")
+                    print()           
+            while True:
+                try: 
+                    id = int(input("Provide the account id: "))
+                    cursor.execute(f"UPDATE Customer_Accounts SET last_name = '{last_name}' WHERE id = {id}") 
+                    conn.commit()
+                    print()
+                    break
+                except ValueError:
+                    print("Invalid id given.")
+        else:
+            print(f"{user_choice} is not on the list")
+            print()
+        break
+    print("Account Sucessfully updated!")
+    print("-"*30)
+    cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row) 
+
+    time.sleep(3)
+    user_choice = input("What would you like to do next? \n1. Update Account \n2. Main Menu \n: ")
+    while True:
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            update_accounts()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2) 
+            main()
+            break
+        else:
+            print("Invalid User Choice. Please pick an option from the list.")
+            print("-"*20)
+        
+
 def create_account():
     print()
     print("Welcome to Account Creation.")
@@ -121,11 +188,12 @@ def create_account():
 def withdraw_account():
     print()
     
-def add_account():
+def add_money_account():
     print()
 
 def delete_account():
     print()
 
 #create_account()
-view_accounts()
+#view_accounts()
+#update_accounts()
