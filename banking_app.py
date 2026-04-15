@@ -49,7 +49,7 @@ def view_accounts():
         elif user_choice == "3":
             print("Redirecting you shortly...")
             time.sleep(2)
-            add_account()
+            add_money_account()
         else:
             print(f"{user_choice} is not an option on the list.")
             print()
@@ -123,7 +123,6 @@ def update_accounts():
             print("Invalid User Choice. Please pick an option from the list.")
             print("-"*20)
         
-
 def create_account():
     print()
     print("Welcome to Account Creation.")
@@ -184,16 +183,108 @@ def create_account():
         else:
             print()
             print(f"{answer} is not an option on the list")
-                    
+
 def withdraw_account():
     print()
+    print("===Welcome to the Withdraw Account Page.=== ")
+    print("Where would you like to withdraw from?")
+    print("1. Checkings Account")
+    print("2. Savings Account")
+    while True:
+        user_choice = input(": ")
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_checkings()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_savings()
+            break
+        else:
+            print("===Invalid Option Choice. Please choose from the list.===")
+
+
+def withdraw_savings():
+    while True:
+        try:
+            withdraw = float(input("==Withdrawl Amount==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
+    while True:
+        try:
+            id = int(input("==Enter Id==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter a valid id.")
+
+    cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        list_r = list(row) #turns it into a list so it can be later turned into an integer 
+    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
+
+    while True:
+        if balance >= withdraw:
+            break
+        else:
+            print("===Insufficient Funds.===")
+            print("You can not withdraw more than what you have.")
     
+    new_balance = balance - withdraw #math for updated balance 
+    cursor.execute(f"UPDATE Customer_Accounts SET savings_balance = {new_balance} WHERE id = {id}")
+    conn.commit()
+    print("==Withdraw Successful!==")
+    cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+
+def withdraw_checkings():
+    while True:
+        try:
+            withdraw = float(input("==Withdrawl Amount==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
+    while True:
+        try:
+            id = int(input("==Enter Id==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter a valid id.")
+
+    cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        list_r = list(row) #turns it into a list so it can be later turned into an integer 
+    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
+
+    while True:
+        if balance >= withdraw:
+            break
+        else:
+            print("===Insufficient Funds.===")
+            print("You can not withdraw more than what you have.")
+    
+    new_balance = balance - withdraw #math for updated balance 
+    cursor.execute(f"UPDATE Customer_Accounts SET checkings_balance = {new_balance} WHERE id = {id}")
+    conn.commit()
+    print("==Withdraw Successful!==")
+    cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+
 def add_money_account():
-    print()
+    pass
 
 def delete_account():
-    print()
+    pass
 
-#create_account()
-#view_accounts()
-#update_accounts()
+
+withdraw_account()
