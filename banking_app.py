@@ -19,10 +19,48 @@ CREATE TABLE IF NOT EXISTS Customer_Accounts (
 
 def main():
     print() 
-    print("Welcome to the Main Menu.")
+    print("==Welcome to the Main Menu.==")
     print('-'*25)
     print("1. View Accounts \n2. Update Account \n3. Create New Account \n4. Add to Account \n5. Withdraw from Account \n6. Delete Account \n7. Exit Program ")
     print('-'*25)
+
+    while True:
+        user_choice = input(": ")
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            view_accounts()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            update_accounts()
+            break
+        elif user_choice == "3":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            create_account()
+            break
+        elif user_choice == "4":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_money_account()
+            break
+        elif user_choice == "5":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_account()
+            break
+        elif user_choice == "6":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            delete_account()
+            break
+        elif user_choice == "7":
+            print("Program Closed.")
+            break
+        else:
+            print("Invalid input. Please choose an option from the list.")
 
 def view_accounts():
     print() 
@@ -51,8 +89,7 @@ def view_accounts():
             time.sleep(2)
             add_money_account()
         else:
-            print(f"{user_choice} is not an option on the list.")
-            print()
+            print("Invalid input. Please choose an option on the list.")
             
 def update_accounts():
     print()
@@ -99,6 +136,7 @@ def update_accounts():
             print(f"{user_choice} is not on the list")
             print()
         break
+
     print("Account Sucessfully updated!")
     print("-"*30)
     cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
@@ -120,8 +158,7 @@ def update_accounts():
             main()
             break
         else:
-            print("Invalid User Choice. Please pick an option from the list.")
-            print("-"*20)
+            print("Invalid Input. Please pick an option from the list.")
         
 def create_account():
     print()
@@ -182,7 +219,7 @@ def create_account():
             break
         else:
             print()
-            print(f"{answer} is not an option on the list")
+            print("Invalid Input. Please choose an option on the list")
 
 def withdraw_account():
     print()
@@ -204,7 +241,6 @@ def withdraw_account():
             break
         else:
             print("===Invalid Option Choice. Please choose from the list.===")
-
 
 def withdraw_savings():
     while True:
@@ -281,10 +317,138 @@ def withdraw_checkings():
         print(row)
 
 def add_money_account():
-    pass
+    print()
+    print("==Deposit Account Page==")
+    print("What type of account would you like to add to?")
+    print("1. Checkings Account")
+    print("2. Savings Account")
+    
+    while True:
+        user_choice = input(": ")
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_checkings()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_savings()
+            break
+        else:
+            print("Invalid input. Please choose an option from the list.")
+
+def add_savings():
+    print()
+    while True:
+        try:
+            deposit = float(input("==Deposit Amount==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
+    while True:
+        try:
+            id = int(input("==Enter Id==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter a valid id.")
+
+    cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        list_r = list(row) #turns it into a list so it can be later turned into an integer 
+    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
+
+    
+    new_balance = balance + deposit #math for updated balance 
+    cursor.execute(f"UPDATE Customer_Accounts SET savings_balance = {new_balance} WHERE id = {id}")
+    conn.commit()
+    print("==Deposit Successful!==")
+    cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+
+def add_checkings():
+    print()
+    while True:
+        try:
+            deposit = float(input("==Deposit Amount==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
+    while True:
+        try:
+            id = int(input("==Enter Id==: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter a valid id.")
+
+    cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        list_r = list(row) #turns it into a list so it can be later turned into an integer 
+    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
+
+    
+    new_balance = balance + deposit #math for updated balance 
+    cursor.execute(f"UPDATE Customer_Accounts SET checkings_balance = {new_balance} WHERE id = {id}")
+    conn.commit()
+    print("==Deposit Successful!==")
+    cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
 
 def delete_account():
-    pass
+    print()
+    print("==Delete Account Page==")
+    while True:
+        try:
+            id = int(input("Enter the account id: "))
+            break
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
 
+    cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(f"=={row}==")
 
-withdraw_account()
+    while True:
+        confirmation = input("Are you sure you wish to delete this account? (y/n): ").strip().translate(no_punct)
+        if confirmation == 'y':
+            cursor.execute(f"DELETE FROM Customer_Accounts WHERE id = {id}")
+            conn.commit()
+            print("==Account sucessfully deleted!==")
+            break
+        elif confirmation == 'n':
+            print("==Account Deletion Canceled==")
+            break
+        else:
+            print("Invalid Choice. Please use 'y' or 'n'")
+            print()
+
+    print()
+    print("==What would you like to do next?==")
+    print("1. Main Menu")
+    print("2. Go Back To Delete Account Page")
+    
+    while True:
+        user_choice = input(": ").strip().translate(no_punct)
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            delete_account() 
+            break
+        else:
+            print("Invalid choice. Please choose an option from the list.")
+            print()
+
