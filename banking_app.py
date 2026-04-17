@@ -75,7 +75,7 @@ def view_accounts():
 
     print("1. Main Menu \n2. Withdraw from Account \n3. Add to account")
     while True: #loops if invalid answers are given 
-        user_choice = input("What would like to do next?: ").strip() 
+        user_choice = input("What would like to do next?: ").strip().translate(no_punct)
         if user_choice == "1":
             print("Redirecting you shortly...")
             time.sleep(2)
@@ -96,40 +96,53 @@ def update_accounts():
     print("Update Accounts Page")
 
     while True:
-        user_choice = input("What would you like to update? \n1. First Name \n2. Last Name \n: ").strip()
+        user_choice = input("What would you like to update? \n1. First Name \n2. Last Name \n: ").strip().translate(no_punct)
+
         if user_choice == "1":
             while True:
-                first_name = input("What would you like to update the first name to?: ").translate(no_punct)
+                first_name = input("What would you like to update the first name to?: ").translate(no_punct).strip()
                 if first_name.isalpha() == True:
                     break
                 else:
                     print("Name cannot include special characters or numbers.")
-                    print()           
+                    print() 
+
             while True:
                 try: 
                     id = int(input("Provide the account id: "))
-                    cursor.execute(f"UPDATE Customer_Accounts SET first_name = '{first_name}' WHERE id = {id}") 
-                    conn.commit()
-                    print()
-                    break
+                    cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+                    rows = cursor.fetchall()
+                    if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                        print("No account found with this id.")
+                    else:  
+                        cursor.execute(f"UPDATE Customer_Accounts SET first_name = '{first_name}' WHERE id = {id}") 
+                        conn.commit()
+                        print()
+                        break
                 except ValueError:
                     print("Invalid id given.")
                
         elif user_choice == "2":
             while True:
-                last_name = input("What would you like to update the last name to?: ").translate(no_punct)
+                last_name = input("What would you like to update the last name to?: ").translate(no_punct).strip() 
                 if last_name.isalpha() == True:
                     break
                 else:
                     print("Name cannot include special characters or numbers.")
-                    print()           
+                    print() 
+
             while True:
                 try: 
                     id = int(input("Provide the account id: "))
-                    cursor.execute(f"UPDATE Customer_Accounts SET last_name = '{last_name}' WHERE id = {id}") 
-                    conn.commit()
-                    print()
-                    break
+                    cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+                    rows = cursor.fetchall()
+                    if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                        print("No account found with this id.")
+                    else:
+                        cursor.execute(f"UPDATE Customer_Accounts SET last_name = '{last_name}' WHERE id = {id}") 
+                        conn.commit()
+                        print()
+                        break
                 except ValueError:
                     print("Invalid id given.")
         else:
@@ -145,6 +158,7 @@ def update_accounts():
         print(row) 
 
     time.sleep(3)
+    print()
     user_choice = input("What would you like to do next? \n1. Update Account \n2. Main Menu \n: ")
     while True:
         if user_choice == "1":
@@ -165,7 +179,7 @@ def create_account():
     print("Welcome to Account Creation.")
 
     while True: #makes sure that names aren't created with numbers or special characters 
-        first_name = input("Enter the first name of the account holder: ").translate(no_punct)   
+        first_name = input("Enter the first name of the account holder: ").translate(no_punct).strip()   
         if first_name.isalpha() == True:
             print()
             break 
@@ -174,7 +188,7 @@ def create_account():
             print("Numbers and/or special characters are not allowed. Please try again.")
 
     while True: #makes sure last names aren't created with numbers or special characters 
-        last_name = input("Enter the last name of the account holder: ").translate(no_punct)
+        last_name = input("Enter the last name of the account holder: ").translate(no_punct).strip()
         if last_name.isalpha() == True:
             print()
             break
@@ -206,7 +220,7 @@ def create_account():
     
     #sends users back to account creation or the main menu 
     while True:
-        answer = input(": ")
+        answer = input(": ").translate(no_punct).strip() 
         if answer == "1":
             print("Redirecting you shortly...")
             time.sleep(2)
@@ -228,7 +242,7 @@ def withdraw_account():
     print("1. Checkings Account")
     print("2. Savings Account")
     while True:
-        user_choice = input(": ")
+        user_choice = input(": ").translate(no_punct).strip() 
         if user_choice == "1":
             print("Redirecting you shortly...")
             time.sleep(2)
@@ -253,7 +267,12 @@ def withdraw_savings():
     while True:
         try:
             id = int(input("==Enter Id==: "))
-            break
+            cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                print("No account found with this id.")
+            else:
+                break
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
 
@@ -277,7 +296,28 @@ def withdraw_savings():
     cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(f"Updated Balance: {row}")
+    
+    print()
+    print("==What would you like to do next?==")
+    print("1. Main Menu")
+    print("2. Go Back To Withdraw Accounts Page")
+    
+    while True:
+        user_choice = input(": ").strip().translate(no_punct)
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_account()
+            break
+        else:
+            print("Invalid choice. Please choose an option from the list.")
+            print()
 
 def withdraw_checkings():
     while True:
@@ -290,10 +330,15 @@ def withdraw_checkings():
     while True:
         try:
             id = int(input("==Enter Id==: "))
-            break
+            cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                print("No account found with this id.")
+            else:
+                break
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
-
+    
     cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
     rows = cursor.fetchall()
     for row in rows:
@@ -314,7 +359,28 @@ def withdraw_checkings():
     cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(f"Updated Balance: {row}")
+    
+    print()
+    print("==What would you like to do next?==")
+    print("1. Main Menu")
+    print("2. Go Back To Withdraw Accounts Page")
+    
+    while True:
+        user_choice = input(": ").strip().translate(no_punct)
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            withdraw_account()
+            break
+        else:
+            print("Invalid choice. Please choose an option from the list.")
+            print()
 
 def add_money_account():
     print()
@@ -350,7 +416,12 @@ def add_savings():
     while True:
         try:
             id = int(input("==Enter Id==: "))
-            break
+            cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                print("No account found with this id.")
+            else:
+                break
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
 
@@ -368,7 +439,28 @@ def add_savings():
     cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(f"Updated Balance: {row}")
+    
+    print()
+    print("==What would you like to do next?==")
+    print("1. Main Menu")
+    print("2. Go Back Add Accounts Page")
+    
+    while True:
+        user_choice = input(": ").strip().translate(no_punct)
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_money_account()
+            break
+        else:
+            print("Invalid choice. Please choose an option from the list.")
+            print()
 
 def add_checkings():
     print()
@@ -382,7 +474,12 @@ def add_checkings():
     while True:
         try:
             id = int(input("==Enter Id==: "))
-            break
+            cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
+                print("No account found with this id.")
+            else:
+                break
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
 
@@ -400,7 +497,28 @@ def add_checkings():
     cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(f"Updated Balance: {row}")
+    
+    print()
+    print("==What would you like to do next?==")
+    print("1. Main Menu")
+    print("2. Go Back To Add Acounts Page")
+    
+    while True:
+        user_choice = input(": ").strip().translate(no_punct)
+        if user_choice == "1":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            main()
+            break
+        elif user_choice == "2":
+            print("Redirecting you shortly...")
+            time.sleep(2)
+            add_money_account() 
+            break
+        else:
+            print("Invalid choice. Please choose an option from the list.")
+            print()
 
 def delete_account():
     print()
@@ -418,7 +536,7 @@ def delete_account():
         print(f"=={row}==")
 
     while True:
-        confirmation = input("Are you sure you wish to delete this account? (y/n): ").strip().translate(no_punct)
+        confirmation = input("Are you sure you wish to delete this account? (y/n): ").strip().translate(no_punct).lower() 
         if confirmation == 'y':
             cursor.execute(f"DELETE FROM Customer_Accounts WHERE id = {id}")
             conn.commit()
