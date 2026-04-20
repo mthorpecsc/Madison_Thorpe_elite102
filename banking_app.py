@@ -276,7 +276,7 @@ def withdraw_account():
 def withdraw_savings():
     while True:
         try:
-            id = int(input("==Enter Id==: "))
+            id = int(input("==Enter Account Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
             if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
@@ -361,7 +361,7 @@ def withdraw_savings():
 def withdraw_checkings():
     while True:
         try:
-            id = int(input("==Enter Id==: "))
+            id = int(input("==Enter Account Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
             if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
@@ -482,7 +482,7 @@ def add_savings():
 
     while True:
         try:
-            id = int(input("==Enter Id==: "))
+            id = int(input("==Enter Account Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
             if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
@@ -568,7 +568,7 @@ def add_checkings():
 
     while True:
         try:
-            id = int(input("==Enter Id==: "))
+            id = int(input("==Enter Account Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
             if len(rows) == 0: #makes user input a new id if an account is not found with the one given 
