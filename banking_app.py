@@ -1,6 +1,8 @@
 import sqlite3
 import time 
 import string
+import json 
+import os 
 
 no_punct = str.maketrans('','',string.punctuation)
 conn = sqlite3.connect('banking_program.db')
@@ -17,11 +19,21 @@ CREATE TABLE IF NOT EXISTS Customer_Accounts (
                )
 ''')
 
+#holds transcation history 
+def transcation_history():
+    print()
+    print("==Transcation History==")
+    with open('transcation.json', 'r') as f:
+        transcation_history = json.load(f)
+    
+    for transcation in transcation_history:
+        print(transcation)
+ 
 def main():
     print() 
     print("==Welcome to the Main Menu.==")
     print('-'*25)
-    print("1. View Accounts \n2. Update Account \n3. Create New Account \n4. Add to Account \n5. Withdraw from Account \n6. Delete Account \n7. Exit Program ")
+    print("1. View Accounts \n2. Update Account \n3. Create New Account \n4. Add to Account \n5. Withdraw from Account \n6. Delete Account \n7. Transcation History \n8. Exit Program ")
     print('-'*25)
 
     while True:
@@ -57,11 +69,15 @@ def main():
             delete_account()
             break
         elif user_choice == "7":
-            print("Program Closed.")
+            transcation_history()
             break
+        elif user_choice == "8":
+            print("Program Closed.")
+            break 
         else:
             print("Invalid input. Please choose an option from the list.")
 
+#create, update, and view account functions
 def view_accounts():
     print() 
     print("A list of all registered accounts.")
@@ -173,7 +189,7 @@ def update_accounts():
             break
         else:
             print("Invalid Input. Please pick an option from the list.")
-        
+      
 def create_account():
     print()
     print("Welcome to Account Creation.")
@@ -235,6 +251,7 @@ def create_account():
             print()
             print("Invalid Input. Please choose an option on the list")
 
+#withdraw functions 
 def withdraw_account():
     print()
     print("===Welcome to the Withdraw Account Page.=== ")
@@ -259,13 +276,6 @@ def withdraw_account():
 def withdraw_savings():
     while True:
         try:
-            withdraw = float(input("==Withdrawl Amount==: "))
-            break
-        except ValueError:
-            print("Invalid Input. Please enter an integer.")
-
-    while True:
-        try:
             id = int(input("==Enter Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
@@ -276,19 +286,21 @@ def withdraw_savings():
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
 
-    cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
-    rows = cursor.fetchall()
-    for row in rows:
-        list_r = list(row) #turns it into a list so it can be later turned into an integer 
-    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
-
     while True:
-        if balance >= withdraw:
-            break
-        else:
-            print("===Insufficient Funds.===")
-            print("You can not withdraw more than what you have.")
-    
+        try:
+            withdraw = float(input("==Withdrawl Amount==: "))
+            cursor.execute(f"SELECT savings_balance FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            for row in rows:
+                balance = int(float(''.join(map(str, list(row))))) #turns it into an integer 
+            if balance >= withdraw:
+                break
+            else:
+                print("===Insufficient Funds.===")
+                print("You can not withdraw more than what you have.")
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
     new_balance = balance - withdraw #math for updated balance 
     cursor.execute(f"UPDATE Customer_Accounts SET savings_balance = {new_balance} WHERE id = {id}")
     conn.commit()
@@ -297,6 +309,33 @@ def withdraw_savings():
     rows = cursor.fetchall()
     for row in rows:
         print(f"Updated Balance: {row}")
+    
+    #grabs the first name of the customer and turns it into a string 
+    cursor.execute(f"SELECT first_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        first_name = (''.join(map(str, list(row))))
+
+    #grabs the last name of a customer and turns it into a string 
+    cursor.execute(f"SELECT last_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        last_name = (''.join(map(str, list(row))))
+
+    #gets the time transcation was made 
+    current_time = time.asctime()
+   
+    transcation = f"${withdraw} withdrawl from {first_name} {last_name}'s account on {current_time}"
+    if os.path.exists("transcation.json"):
+        with open("transcation.json", "r") as f:
+            data = json.load(f)
+    else:
+        data = []
+    
+    data.append(transcation)
+
+    with open('transcation.json','w') as f:
+        json.dump(data, f, indent=4)
     
     print()
     print("==What would you like to do next?==")
@@ -322,13 +361,6 @@ def withdraw_savings():
 def withdraw_checkings():
     while True:
         try:
-            withdraw = float(input("==Withdrawl Amount==: "))
-            break
-        except ValueError:
-            print("Invalid Input. Please enter an integer.")
-
-    while True:
-        try:
             id = int(input("==Enter Id==: "))
             cursor.execute(f"SELECT * FROM Customer_Accounts WHERE id = {id}")
             rows = cursor.fetchall()
@@ -338,20 +370,24 @@ def withdraw_checkings():
                 break
         except ValueError:
             print("Invalid Input. Please enter a valid id.")
-    
-    cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
-    rows = cursor.fetchall()
-    for row in rows:
-        list_r = list(row) #turns it into a list so it can be later turned into an integer 
-    balance = int(float(''.join(map(str, list_r)))) #turns it into an integer 
 
     while True:
-        if balance >= withdraw:
-            break
-        else:
-            print("===Insufficient Funds.===")
-            print("You can not withdraw more than what you have.")
-    
+        try:
+            withdraw = float(input("==Withdrawl Amount==: "))
+            cursor.execute(f"SELECT checkings_balance FROM Customer_Accounts WHERE id = {id}")
+            rows = cursor.fetchall()
+            for row in rows:
+                #turns it into a list so it can be later turned into an integer 
+                balance = int(float(''.join(map(str, list(row))))) #turns it into an integer 
+            if balance >= withdraw:
+                break
+            else:
+                print("===Insufficient Funds.===")
+                print("You can not withdraw more than what you have.")
+
+        except ValueError:
+            print("Invalid Input. Please enter an integer.")
+
     new_balance = balance - withdraw #math for updated balance 
     cursor.execute(f"UPDATE Customer_Accounts SET checkings_balance = {new_balance} WHERE id = {id}")
     conn.commit()
@@ -360,6 +396,36 @@ def withdraw_checkings():
     rows = cursor.fetchall()
     for row in rows:
         print(f"Updated Balance: {row}")
+    
+    #grabs the first name of the customer and turns it into a string 
+    cursor.execute(f"SELECT first_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        first_name = (''.join(map(str, list(row))))
+
+    #grabs the last name of a customer and turns it into a string 
+    cursor.execute(f"SELECT last_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        last_name = (''.join(map(str, list(row))))
+
+    #gets the time transcation was made 
+    current_time = time.asctime()
+
+    #saves the transcation history to a file 
+    transcation = f"${withdraw} withdrawl from {first_name} {last_name}'s account on {current_time}"
+    if os.path.exists("transcation.json"):
+        with open("transcation.json", "r") as f:
+            data = json.load(f)
+    else:
+        data = []
+    
+    data.append(transcation)
+
+    with open('transcation.json','w') as f:
+        json.dump(data, f, indent=4)
+   
+   
     
     print()
     print("==What would you like to do next?==")
@@ -382,6 +448,7 @@ def withdraw_checkings():
             print("Invalid choice. Please choose an option from the list.")
             print()
 
+#deposit functions 
 def add_money_account():
     print()
     print("==Deposit Account Page==")
@@ -441,6 +508,34 @@ def add_savings():
     for row in rows:
         print(f"Updated Balance: {row}")
     
+    #grabs the first name of the customer and turns it into a string 
+    cursor.execute(f"SELECT first_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        first_name = (''.join(map(str, list(row))))
+
+    #grabs the last name of a customer and turns it into a string 
+    cursor.execute(f"SELECT last_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        last_name = (''.join(map(str, list(row))))
+
+    #gets the time transcation was made 
+    current_time = time.asctime()
+   
+    transcation = f"${deposit} deposit in {first_name} {last_name}'s savings account on {current_time}"
+    if os.path.exists("transcation.json"):
+        with open("transcation.json", "r") as f:
+            data = json.load(f)
+    else:
+        data = []
+    
+    data.append(transcation)
+
+    with open('transcation.json','w') as f:
+        json.dump(data, f, indent=4)
+    
+    
     print()
     print("==What would you like to do next?==")
     print("1. Main Menu")
@@ -499,6 +594,33 @@ def add_checkings():
     for row in rows:
         print(f"Updated Balance: {row}")
     
+    #grabs the first name of the customer and turns it into a string 
+    cursor.execute(f"SELECT first_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        first_name = (''.join(map(str, list(row))))
+
+    #grabs the last name of a customer and turns it into a string 
+    cursor.execute(f"SELECT last_name FROM Customer_Accounts WHERE id = {id}")
+    rows = cursor.fetchall()
+    for row in rows:
+        last_name = (''.join(map(str, list(row))))
+
+    #gets the time transcation was made 
+    current_time = time.asctime()
+   
+    transcation = f"${deposit} deposit in {first_name} {last_name}'s checkings account on {current_time}"
+    if os.path.exists("transcation.json"):
+        with open("transcation.json", "r") as f:
+            data = json.load(f)
+    else:
+        data = []
+    
+    data.append(transcation)
+
+    with open('transcation.json','w') as f:
+        json.dump(data, f, indent=4)
+    
     print()
     print("==What would you like to do next?==")
     print("1. Main Menu")
@@ -520,7 +642,9 @@ def add_checkings():
             print("Invalid choice. Please choose an option from the list.")
             print()
 
+#delete account function 
 def delete_account():
+
     print()
     print("==Delete Account Page==")
     while True:
@@ -570,3 +694,4 @@ def delete_account():
             print("Invalid choice. Please choose an option from the list.")
             print()
 
+main() 
